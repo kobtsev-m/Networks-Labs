@@ -2,12 +2,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class Mailing {
+public class Mailing extends Thread {
     private static final int TIME_TO_WORK = 60000;
     private static final long TIME_TO_SEND_MSG = 3000;
     private static final long TIME_TO_BE_ALIVE = 4000;
@@ -15,85 +14,109 @@ public class Mailing {
     private static final int SOCKET_TIMEOUT = 100;
     private static final int UUID_LENGTH = 36;
 
-    private final String ownUuid;
-    private InetAddress groupAddress;
+    private final InetAddress groupAddress;
     private final int groupPort;
+    private final String ownUuid;
     private final HashMap<String, Long> connectionsMap;
     private int connectionsCount;
 
     private long startTime;
-    private long lastSendTime;
+    private long lastSendingTime;
+    private int isExiting;
 
-    public Mailing(String address, int port) {
-        ownUuid = UUID.randomUUID().toString();
-        try {
-            groupAddress = InetAddress.getByName(address);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+    public Mailing(String address, int port) throws IOException, IllegalArgumentException {
+        groupAddress = InetAddress.getByName(address);
+        if (!groupAddress.isMulticastAddress()) {
+            throw new IllegalArgumentException("Invalid multicast address");
         }
-        groupPort = port;
+        this.groupPort = port;
+        if (groupPort < 1024 || groupPort > 49151) {
+            throw new IllegalArgumentException("Invalid port");
+        }
+        ownUuid = UUID.randomUUID().toString();
         connectionsMap = new HashMap<>();
         connectionsCount = 0;
     }
 
-    public void start() {
-        startTime = System.currentTimeMillis();
-        lastSendTime = System.currentTimeMillis();
-        MulticastSocket socket = createSocket();
+    public boolean getIsExiting() {
+        return isExiting == 1;
+    }
+
+    public void setIsExiting(int isExiting) {
+        this.isExiting = isExiting;
+    }
+
+    public void run() {
+        startTime = lastSendingTime = System.currentTimeMillis();
+        isExiting = 0;
+        MulticastSocket socket;
+        try {
+            socket = createSocket();
+        } catch (IOException e) {
+            return;
+        }
         waitForReceive(socket);
     }
 
-    public MulticastSocket createSocket() {
-        MulticastSocket socket = null;
-        try {
-            socket = new MulticastSocket(groupPort);
-            socket.joinGroup(groupAddress);
-            socket.setSoTimeout(SOCKET_TIMEOUT);
-        } catch (IOException ignored) {}
+    public MulticastSocket createSocket() throws IOException {
+        MulticastSocket socket = new MulticastSocket(groupPort);
+        socket.joinGroup(groupAddress);
+        socket.setSoTimeout(SOCKET_TIMEOUT);
         return socket;
     }
 
     public void waitForReceive(MulticastSocket socket) {
         long workingTime = System.currentTimeMillis() - startTime;
-        while (workingTime < TIME_TO_WORK) {
-            String additionalInfo = "Test";
-            byte[] sendData = (ownUuid + additionalInfo).getBytes(StandardCharsets.UTF_8);
-            String receivedData = null;
-            String receivedUuid = null;
+        if (workingTime > TIME_TO_WORK) {
+            return;
+        }
 
-            long passedAfterLastSendTime = System.currentTimeMillis() - lastSendTime;
-            if (passedAfterLastSendTime > TIME_TO_SEND_MSG) {
-                DatagramPacket sendDatagram = new DatagramPacket(
-                    sendData, sendData.length, groupAddress, groupPort
-                );
-                try {
-                    socket.send(sendDatagram, TIME_TO_LINE);
-                } catch (IOException ignored) {}
-                lastSendTime = System.currentTimeMillis();
-            }
+        byte[] sendData = (ownUuid + isExiting).getBytes(StandardCharsets.UTF_8);
+        String receivedUuid = null;
+        String receivedExitFlag = null;
 
-            DatagramPacket receiveDatagram = new DatagramPacket(
-                new byte[sendData.length], sendData.length
+        // Sending
+        long afterLastSendingTime = System.currentTimeMillis() - lastSendingTime;
+        if (afterLastSendingTime > TIME_TO_SEND_MSG || getIsExiting()) {
+            DatagramPacket sendDatagram = new DatagramPacket(
+                sendData, sendData.length, groupAddress, groupPort
             );
             try {
-                socket.receive(receiveDatagram);
-                receivedData = new String(
-                    receiveDatagram.getData(), StandardCharsets.UTF_8
-                );
-                receivedUuid = receivedData.substring(0, UUID_LENGTH);
+                socket.send(sendDatagram, TIME_TO_LINE);
+                lastSendingTime = System.currentTimeMillis();
             } catch (IOException ignored) {}
-
-            cleanConnections();
-            if (receivedUuid != null && !receivedUuid.equals(ownUuid)) {
-                connectionsMap.put(receivedData, System.currentTimeMillis());
-            }
-            if (connectionsMap.size() != connectionsCount) {
-                connectionsCount = connectionsMap.size();
-                printConnections();
-            }
-
-            workingTime = System.currentTimeMillis() - startTime;
         }
+
+        // Receiving
+        DatagramPacket receiveDatagram = new DatagramPacket(
+            new byte[sendData.length], sendData.length
+        );
+        try {
+            socket.receive(receiveDatagram);
+            String receivedData = new String(
+                receiveDatagram.getData(), StandardCharsets.UTF_8
+            );
+            receivedUuid = receivedData.substring(0, UUID_LENGTH);
+            receivedExitFlag = receivedData.substring(UUID_LENGTH);
+
+        } catch (IOException ignored) {}
+
+        // Exiting if flag is true
+        if (String.valueOf(1).equals(receivedExitFlag)) {
+            return;
+        }
+
+        // Showing active connections
+        cleanConnections();
+        if (receivedUuid != null && !receivedUuid.equals(ownUuid)) {
+            connectionsMap.put(receivedUuid, System.currentTimeMillis());
+        }
+        if (connectionsMap.size() != connectionsCount) {
+            connectionsCount = connectionsMap.size();
+            printConnections();
+        }
+
+        waitForReceive(socket);
     }
 
     private void cleanConnections() {
@@ -105,10 +128,9 @@ public class Mailing {
     private void printConnections() {
         System.out.println("Connections:");
         for (var entry : connectionsMap.entrySet()) {
-            String uuid = entry.getKey().substring(0, UUID_LENGTH);
-            String additionalInfo = entry.getKey().substring(UUID_LENGTH);
+            String uuid = entry.getKey();
             String connectionTime = Utils.getTimeFromTimestamp(entry.getValue());
-            System.out.println(uuid + " | " + additionalInfo + " | " + connectionTime);
+            System.out.println(uuid + " | " + connectionTime);
         }
         System.out.println();
     }
