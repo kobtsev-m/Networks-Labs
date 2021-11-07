@@ -1,17 +1,17 @@
-package components;
+package view;
 
 import javax.swing.*;
 
-public class Window extends JFrame {
+public class WindowView extends JFrame {
 
     private final String WINDOW_TITLE = "Async requests app";
     private final int[] WINDOW_SIZE = new int[] {600, 500};
 
-    public Window() {
+    public WindowView() {
         setTitle(WINDOW_TITLE);
         setSize(WINDOW_SIZE[0], WINDOW_SIZE[1]);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        add(new Container());
+        add(new ContainerView());
         setVisible(true);
     }
 }

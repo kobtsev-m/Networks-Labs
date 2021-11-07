@@ -1,7 +1,7 @@
-import components.Window;
+import view.WindowView;
 
 public class Main {
     public static void main(String[] args) {
-        new Window();
+        new WindowView();
     }
 }

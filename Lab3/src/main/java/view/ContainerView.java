@@ -1,41 +1,41 @@
-package components;
+package view;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class Container extends JPanel {
+public class ContainerView extends JPanel {
 
     JTextField searchInput = new JTextField(30);
     JButton searchButton = new JButton("Search");
-    JLabel resultLabel = new JLabel();
+    JPanel addressListTable = new AddressListView();
 
     String searchInputValue = "";
 
-    public Container() {
-        createLayout();
+    public ContainerView() {
+        draw();
         addEvents();
     }
 
-    private void createLayout() {
+    private void draw() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx      = 0;
         gbc.gridy      = 0;
-        gbc.gridwidth  = 2;
+        gbc.gridwidth  = 4;
         add(searchInput, gbc);
 
-        gbc.gridx      = 2;
+        gbc.gridx      = 5;
         gbc.gridy      = 0;
-        gbc.gridwidth  = 1;
+        gbc.gridwidth  = 2;
         add(searchButton, gbc);
 
         gbc.gridx      = 0;
         gbc.gridy      = 1;
         gbc.gridwidth  = 3;
-        add(resultLabel, gbc);
+        add(addressListTable, gbc);
     }
 
     private void addEvents() {
@@ -45,6 +45,6 @@ public class Container extends JPanel {
 
     private void handleSearchEvent(ActionEvent event) {
         searchInputValue = searchInput.getText();
-        resultLabel.setText(searchInputValue);
+        addressListTable.setVisible(true);
     }
 }
