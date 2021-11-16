@@ -1,11 +1,10 @@
 package utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
-public class JsonParser {
+public class JsonUtils {
 
     public static ObjectMapper objectMapper;
 

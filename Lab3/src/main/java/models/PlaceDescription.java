@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PlaceDescription {
     public String xid;
     public String name;
+    public String image;
     public boolean isNull = false;
 
     public Info info;

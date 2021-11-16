@@ -21,3 +21,6 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
+
+# Env variables
+env.properties

@@ -7,5 +7,5 @@ public class Place {
     public String name;
     public String kinds;
     @JsonProperty("point")
-    public Coordinates coordinates;
+    public Address.Coordinates coordinates;
 }
