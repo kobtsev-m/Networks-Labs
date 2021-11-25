@@ -5,45 +5,45 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class WeatherInfo {
-    private int visibility;
+    public int visibility;
 
     @JsonProperty("weather")
-    private List<General> general;
+    public List<General> general;
     public static final class General {
-        private String main;
-        private String description;
+        public String main;
+        public String description;
     }
 
     @JsonProperty("main")
-    private Parameters parameters;
+    public Parameters parameters;
     public static final class Parameters {
-        private int pressure;
-        private int humidity;
+        public int pressure;
+        public int humidity;
         @JsonProperty("temp")
-        private double temperature;
+        public double temperature;
         @JsonProperty("feels_like")
-        private double feelsLike;
+        public double feelsLike;
         @JsonProperty("temp_min")
-        private double temperatureMin;
+        public double temperatureMin;
         @JsonProperty("temp_max")
-        private double temperatureMax;
+        public double temperatureMax;
         @JsonProperty("sea_level")
-        private int seaLevel;
+        public int seaLevel;
         @JsonProperty("grnd_level")
-        private int groundLevel;
+        public int groundLevel;
     }
 
     public Wind wind;
     public static final class Wind {
-        private double speed;
-        private double gust;
+        public double speed;
+        public double gust;
         @JsonProperty("deg")
-        private int degree;
+        public int degree;
     }
 
     public Clouds clouds;
     public static final class Clouds {
         @JsonProperty("all")
-        private int clouds;
+        public int clouds;
     }
 }
