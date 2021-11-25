@@ -14,7 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-public class AddressListView extends JPanel {
+public class AddressListView {
 
     @Getter
     private final JPanel panel;

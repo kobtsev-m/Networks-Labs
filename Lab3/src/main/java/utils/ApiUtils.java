@@ -8,17 +8,17 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public interface ApiUtils {
+public class ApiUtils {
 
-    OkHttpClient httpClient = new OkHttpClient();
+    public static OkHttpClient httpClient = new OkHttpClient();
 
-    int HTTP_OK = 200;
-    int HTTP_MANY_REQUESTS = 429;
+    public static int HTTP_OK = 200;
+    public static int HTTP_MANY_REQUESTS = 429;
 
-    int MAX_REQUESTS_NUMBER = 5;
-    int REQUEST_RETRY_TIMEOUT = 500;
+    public static int MAX_REQUESTS_NUMBER = 5;
+    public static int REQUEST_RETRY_TIMEOUT = 500;
 
-    static Response createCall(Request request, int requestsTotal) {
+    public static Response createCall(Request request, int requestsTotal) {
         if (requestsTotal >= MAX_REQUESTS_NUMBER) {
             return null;
         }
@@ -41,7 +41,7 @@ public interface ApiUtils {
         return response;
     }
 
-    static <T> CompletableFuture<T> call(Request request, Class<T> type) {
+    public static <T> CompletableFuture<T> call(Request request, Class<T> type) {
         return CompletableFuture.supplyAsync(() -> {
             Response response = createCall(request, 0);
             try (response) {

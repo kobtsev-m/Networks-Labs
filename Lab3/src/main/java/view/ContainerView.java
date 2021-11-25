@@ -1,11 +1,8 @@
 package view;
 
 import api.AddressService;
-import api.PlaceService;
 import lombok.Getter;
-import models.Address;
 import models.AddressList;
-import models.Place;
 import utils.ApiUtils;
 
 import javax.swing.*;
@@ -17,15 +14,17 @@ public class ContainerView {
     @Getter
     private final JPanel panel;
 
-    JTextField searchInput = new JTextField(50);
-    JButton searchButton = new JButton("Search");
+    private final JTextField searchInput;
+    private final JButton searchButton;
 
-    AddressListView addressListView;
-    PlaceListView placeListView;
-    WeatherView weatherView;
+    private final AddressListView addressListView;
+    private final PlaceListView placeListView;
+    private final WeatherView weatherView;
 
     public ContainerView() {
         panel = new JPanel();
+        searchInput = new JTextField(50);
+        searchButton = new JButton("Search");
         placeListView = new PlaceListView();
         weatherView = new WeatherView();
         addressListView = new AddressListView(placeListView, weatherView);
@@ -80,6 +79,6 @@ public class ContainerView {
 
     public void updateAddressList(String query) {
         ApiUtils.call(AddressService.getAddressList(query), AddressList.class)
-            .thenAcceptAsync(data -> addressListView.update(data));
+            .thenAcceptAsync(addressListView::update);
     }
 }

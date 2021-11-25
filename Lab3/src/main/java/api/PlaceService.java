@@ -6,12 +6,12 @@ import models.Address.*;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-public interface PlaceService {
+public class PlaceService {
 
-    String OPEN_TRIP_URL = "https://api.opentripmap.com/0.1/%s/places/%s";
-    String OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/%s";
+    public static String OPEN_TRIP_URL = "https://api.opentripmap.com/0.1/%s/places/%s";
+    public static String OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/%s";
 
-    static Request getPlaceList(Coordinates coords, int radius) {
+    public static Request getPlaceList(Coordinates coords, int radius) {
         String baseUrl = String.format(OPEN_TRIP_URL, Constants.LANGUAGE, "radius");
         HttpUrl url = HttpUrl
             .parse(baseUrl)
@@ -26,7 +26,7 @@ public interface PlaceService {
         return new Request.Builder().url(url).build();
     }
 
-    static Request getPlaceDescription(String xid) {
+    public static Request getPlaceDescription(String xid) {
         String baseUrl = String.format(
             OPEN_TRIP_URL,
             Constants.LANGUAGE,
@@ -41,7 +41,7 @@ public interface PlaceService {
         return new Request.Builder().url(url).build();
     }
 
-    static Request getPlaceWeatherInfo(Coordinates coords) {
+    public static Request getPlaceWeatherInfo(Coordinates coords) {
         String baseUrl = String.format(OPEN_WEATHER_URL, "weather");
         HttpUrl url = HttpUrl
             .parse(baseUrl)
