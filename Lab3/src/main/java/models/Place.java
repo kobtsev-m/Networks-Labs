@@ -6,6 +6,7 @@ public class Place {
     public String xid;
     public String name;
     public String kinds;
+
     @JsonProperty("point")
     public Address.Coordinates coordinates;
 }

@@ -1,6 +1,7 @@
 package view;
 
 import api.PlaceService;
+import lombok.Getter;
 import models.Place;
 import models.PlaceDescription;
 import utils.ApiUtils;
@@ -13,21 +14,41 @@ import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-public class PlaceListView extends JPanel {
+public class PlaceListView {
+
+    @Getter
+    private final JPanel panel;
 
     private JList<String> jPlaceList;
     private List<Place> placeList;
 
-    public void update(Place[] placeList) {
-        this.placeList = Arrays.asList(placeList);
-        Vector<String> placesNameList = Arrays.stream(placeList)
+    public PlaceListView() {
+        panel = new JPanel();
+    }
+
+    public void update(Place[] _placeList) {
+        placeList = Arrays.asList(_placeList);
+        Vector<String> placesNameList = Arrays.stream(_placeList)
             .map(place -> place.name)
             .collect(Collectors.toCollection(Vector::new));
         jPlaceList = new JList<>(placesNameList);
         jPlaceList.setLayoutOrientation(JList.VERTICAL);
-        removeAll();
-        add(jPlaceList);
+        panel.removeAll();
+        panel.add(jPlaceList);
         addEvents();
+    }
+
+    private String formatDescription(PlaceDescription description) {
+        return String.format(
+            "<html>" +
+            "<b>Country:</b> %s<br>" +
+            "<b>State:</b> %s<br>" +
+            "<b>Road:</b> %s<br>" +
+            "</html>",
+            description.address.country,
+            description.address.state,
+            description.address.road
+        );
     }
 
     private void addEvents() {
@@ -44,9 +65,9 @@ public class PlaceListView extends JPanel {
                             .orElse(null);
                         ApiUtils.call(PlaceService.getPlaceDescription(activePlace.xid), PlaceDescription.class)
                             .thenAcceptAsync(data -> {
-                                System.out.println("hey");
                                 WindowView windowView = WindowView.getInstance();
-                                JOptionPane.showMessageDialog(windowView, data.info.description);
+                                JOptionPane.showMessageDialog(windowView.getFrame(), formatDescription(data));
+                                windowView.getFrame().revalidate();
                             });
                     }
                 }

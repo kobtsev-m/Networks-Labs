@@ -6,11 +6,11 @@ import constants.EnvVariables;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-public class AddressService {
+public interface AddressService {
 
-    public static final String GRAPH_HOPPER_URL = "https://graphhopper.com/api/1/%s";
+    String GRAPH_HOPPER_URL = "https://graphhopper.com/api/1/%s";
 
-    public static Request getAddressList(String query) {
+    static Request getAddressList(String query) {
         String baseUrl = String.format(GRAPH_HOPPER_URL, "geocode");
         HttpUrl url = HttpUrl
             .parse(baseUrl)
