@@ -10,15 +10,15 @@ import java.util.concurrent.CompletableFuture;
 
 public class ApiUtils {
 
-    private static final OkHttpClient httpClient = new OkHttpClient();
+    public static OkHttpClient httpClient = new OkHttpClient();
 
-    private static final int HTTP_OK = 200;
-    private static final int HTTP_MANY_REQUESTS = 429;
+    public static int HTTP_OK = 200;
+    public static int HTTP_MANY_REQUESTS = 429;
 
-    private static final int MAX_REQUESTS_NUMBER = 5;
-    private static final int REQUEST_RETRY_TIMEOUT = 500;
+    public static int MAX_REQUESTS_NUMBER = 5;
+    public static int REQUEST_RETRY_TIMEOUT = 500;
 
-    private static Response createCall(Request request, int requestsTotal) {
+    public static Response createCall(Request request, int requestsTotal) {
         if (requestsTotal >= MAX_REQUESTS_NUMBER) {
             return null;
         }

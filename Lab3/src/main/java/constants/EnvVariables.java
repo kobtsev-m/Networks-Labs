@@ -21,6 +21,10 @@ public class EnvVariables {
     }
 
     public static String get(String name) {
-        return properties.getProperty(name);
+        String property = properties.getProperty(name);
+        if (property == null) {
+            System.out.println("Please, check if you specified correct variables in env.properties file");
+        }
+        return property;
     }
 }

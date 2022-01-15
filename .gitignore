@@ -24,6 +24,3 @@ gradle-app.setting
 
 # Env variables
 env.properties
-
-# Logging
-log.txt

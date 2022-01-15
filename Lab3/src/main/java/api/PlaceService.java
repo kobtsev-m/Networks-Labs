@@ -8,8 +8,8 @@ import okhttp3.Request;
 
 public class PlaceService {
 
-    public static final String OPEN_TRIP_URL = "https://api.opentripmap.com/0.1/%s/places/%s";
-    public static final String OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/%s";
+    public static String OPEN_TRIP_URL = "https://api.opentripmap.com/0.1/%s/places/%s";
+    public static String OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/%s";
 
     public static Request getPlaceList(Coordinates coords, int radius) {
         String baseUrl = String.format(OPEN_TRIP_URL, Constants.LANGUAGE, "radius");
@@ -32,6 +32,7 @@ public class PlaceService {
             Constants.LANGUAGE,
             String.format("xid/%s", xid)
         );
+        System.out.println(baseUrl);
         HttpUrl url = HttpUrl
             .parse(baseUrl)
             .newBuilder()

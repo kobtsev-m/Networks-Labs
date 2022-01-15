@@ -1,53 +1,71 @@
 package view;
 
 import api.AddressService;
-import api.PlaceService;
-import models.Address;
+import lombok.Getter;
 import models.AddressList;
-import models.Place;
 import utils.ApiUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class ContainerView extends JPanel {
+public class ContainerView {
 
-    JTextField searchInput = new JTextField(50);
-    JButton searchButton = new JButton("Search");
+    @Getter
+    private final JPanel panel;
 
-    AddressListView addressListView = new AddressListView(this);
-    PlaceListView placeListView = new PlaceListView();
+    private final JTextField searchInput;
+    private final JButton searchButton;
+
+    private final AddressListView addressListView;
+    private final PlaceListView placeListView;
+    private final WeatherView weatherView;
 
     public ContainerView() {
+        panel = new JPanel();
+        searchInput = new JTextField(50);
+        searchButton = new JButton("Search");
+        placeListView = new PlaceListView();
+        weatherView = new WeatherView();
+        addressListView = new AddressListView(placeListView, weatherView);
         draw();
         addEvents();
     }
 
     private void draw() {
-        setLayout(new GridBagLayout());
+        panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 4;
-        add(searchInput, gbc);
+        gbc.gridheight = 1;
+        panel.add(searchInput, gbc);
 
         gbc.gridx = 4;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        add(searchButton, gbc);
+        gbc.gridheight = 1;
+        panel.add(searchButton, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 3;
-        add(addressListView, gbc);
+        gbc.gridheight = 2;
+        panel.add(addressListView.getPanel(), gbc);
 
         gbc.gridx = 3;
         gbc.gridy = 1;
         gbc.gridwidth = 3;
-        add(placeListView, gbc);
+        gbc.gridheight = 1;
+        panel.add(weatherView.getPanel(), gbc);
+
+        gbc.gridx = 3;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;
+        gbc.gridheight = 1;
+        panel.add(placeListView.getPanel(), gbc);
     }
 
     private void addEvents() {
@@ -61,11 +79,6 @@ public class ContainerView extends JPanel {
 
     public void updateAddressList(String query) {
         ApiUtils.call(AddressService.getAddressList(query), AddressList.class)
-            .thenAcceptAsync(data -> addressListView.update(data));
-    }
-
-    public void updatePlaceList(Address.Coordinates coordinates) {
-        ApiUtils.call(PlaceService.getPlaceList(coordinates, 1000), Place[].class)
-            .thenAcceptAsync(data -> placeListView.update(data));
+            .thenAcceptAsync(addressListView::update);
     }
 }
