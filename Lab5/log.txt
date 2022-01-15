@@ -1,2 +1,0 @@
-2022-01-15 17:29:57.614 [main] INFO  Main.main(Main.java:11) - Usage: port
-2022-01-15 19:28:37.996 [main] INFO  Main.validateArgs(Main.java:18) - Incorrect number of args. Please, specify port number.
