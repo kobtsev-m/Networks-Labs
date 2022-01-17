@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies { }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'Main'
+    }
+}
+
